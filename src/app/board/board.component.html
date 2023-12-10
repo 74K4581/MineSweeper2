@@ -1,0 +1,20 @@
+<div class="board">
+    <div class="row" *ngFor="let row of cells">   
+        <div class="cell" *ngFor="let cell of row">
+
+            <div *ngIf="!cell.isOpen"
+                (click)="openCell(cell)" (contextmenu)="flagCell(cell)">
+                    <div *ngIf="cell.isFlag" class="closeCell">🚩</div>
+                    <div *ngIf="!cell.isFlag" class="closeCell"></div>
+            </div>
+
+            <div *ngIf="cell.isOpen" class="openCell">
+
+                <span *ngIf="!cell.isBomb && cell.bombCount > 0">{{cell.bombCount}}</span>
+                <span *ngIf="!cell.isBomb && cell.bombCount == 0"></span>
+                <span *ngIf="cell.isBomb">●</span>
+            </div>
+
+        </div>
+    </div>
+</div>

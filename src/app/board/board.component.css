@@ -1,0 +1,40 @@
+.row {
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+.cell {
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    display: inline;
+    border: solid 1px blue;
+}
+
+.openCell {
+    background-color: lightgrey;
+    border: solid 0.2px gray;
+    width: 30px;
+    height: 30px;
+    transition: all ease 300ms;
+}
+
+.closeCell {
+    background-color: rgba(64, 84, 92, 0.692);
+    border: solid 0.2px gray;
+    width: 30px;
+    height: 30px;
+    transition: all ease 1000ms;
+}
+
+.closeCell:hover {
+    background-color: lightgreen;
+    border: solid 0.2px lightgreen;
+    transition: all ease 30ms;
+}
+
+.closeCell:active {
+    background-color: rgb(96, 160, 96);
+    border: solid 0.2px rgb(96, 160, 96);;
+}

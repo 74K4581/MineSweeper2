@@ -7,9 +7,10 @@
 .cell {
     padding: 0;
     margin: 0;
+    width: 30px;
+    height: 30px;
     text-align: center;
     display: inline;
-    border: solid 1px blue;
 }
 
 .openCell {
@@ -37,4 +38,8 @@
 .closeCell:active {
     background-color: rgb(96, 160, 96);
     border: solid 0.2px rgb(96, 160, 96);;
+}
+
+.gameOver {
+    border: solid 3px red;
 }

@@ -1,20 +1,30 @@
 <div class="board">
-    <div class="row" *ngFor="let row of cells">   
-        <div class="cell" *ngFor="let cell of row">
+    <div class="row" *ngFor="let row of arrayNumberLength(rowCount); index as rowIndex">
+        <div class="cell" *ngFor="let col of arrayNumberLength(colCount); index as colIndex">
+            <ng-container
+                *ngIf="{
+                     isOpen: (isOpenCell(rowIndex, colIndex) | async) ?? false,
+                     isFlag: (isFlagCell(rowIndex, colIndex) | async) ?? false, 
+                     isBomb: (isBombCell(rowIndex, colIndex) | async) ?? false, 
+                     bombCount: (getBombCount(rowIndex, colIndex) | async) ?? 0
+                     } as cell">
 
-            <div *ngIf="!cell.isOpen"
-                (click)="openCell(cell)" (contextmenu)="flagCell(cell)">
+                <div *ngIf="!cell.isOpen"
+                    
+                     (click)="openCell(rowIndex, colIndex)" (contextmenu)="flagCell(rowIndex, colIndex)">
                     <div *ngIf="cell.isFlag" class="closeCell">🚩</div>
                     <div *ngIf="!cell.isFlag" class="closeCell"></div>
-            </div>
+                </div>
 
-            <div *ngIf="cell.isOpen" class="openCell">
-
-                <span *ngIf="!cell.isBomb && cell.bombCount > 0">{{cell.bombCount}}</span>
-                <span *ngIf="!cell.isBomb && cell.bombCount == 0"></span>
-                <span *ngIf="cell.isBomb">●</span>
-            </div>
-
+                <div *ngIf="cell.isOpen" class="openCell">
+                    <span *ngIf="!cell.isBomb && cell.bombCount > 0">{{cell.bombCount}}</span>
+                    <span *ngIf="!cell.isBomb && cell.bombCount == 0"></span>
+                    <span *ngIf="cell.isBomb">●</span>
+                </div>
+            </ng-container>
         </div>
+    </div>
+    <div>
+        <button (click)="reset()">Reset</button>
     </div>
 </div>

@@ -1,134 +1,62 @@
 import { Component, OnInit } from '@angular/core';
-import { Cell } from '../model/cell'
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
+import { Store, StoreModule } from '@ngrx/store';
+import * as selector from './board.selector';
+import * as action from './board.action';
 
 @Component({
     selector: 'app-board',
     standalone: true,
-    imports: [CommonModule, RouterOutlet],
+    imports: [CommonModule, RouterOutlet, StoreModule],
     templateUrl: './board.component.html',
     styleUrls: ['./board.component.scss']
 })
-export class BoardComponent implements OnInit {
+export class BoardComponent {
 
-    readonly RowCount: number = 10;
-    readonly ColCount: number = 10;
-    cells: Cell[][] = new Array();
-    isGameOver: boolean = false;
+    rowCount: number = 0;
+    colCount: number = 0;
+    isGameOver$ = this.store.select(selector.isEnd);
 
-    constructor() {
 
-        for (let i = 0; i < this.RowCount; ++i) {
-            this.cells[i] = new Array();
-            for (let k = 0; k < this.ColCount; ++k) {
-                this.cells[i][k] = new Cell(i, k, false);
-            }
-        }
-
-        for (let i = 0; i < this.RowCount; ++i) {
-            for (let k = 0; k < this.ColCount; ++k) {
-
-                if (Math.random() > 0.9) {
-                    this.addBomb(i, k);
-                }
-            }
-        }
+    constructor(private readonly store: Store) {
+        this.store.dispatch(action.reset({rowCount: 10, colCount: 10}));
+        this.store.select(selector.rowCount()).subscribe(x => {
+            this.rowCount = x;
+        });
+        this.store.select(selector.columnCount()).subscribe(x => this.colCount = x);
     }
 
-    ngOnInit(): void {
+    reset() {
+        const row: number = Math.floor(Math.random() * 20) + 5;
+        const col: number = Math.floor(Math.random() * 20) + 5;
+        this.store.dispatch(action.reset({rowCount: row, colCount: col}));
     }
 
-    private addBomb(row: number, col: number) {
-        this.cells[row][col].isBomb = true;
-
-        if (0 < row) {
-            // 左上
-            if (0 < col) this.cells[row - 1][col - 1].bombCount++;
-            // 左
-            this.cells[row - 1][col].bombCount++;
-            // 左下
-            if (col < this.ColCount - 1) this.cells[row - 1][col + 1].bombCount++;
-        }
-
-        // 上
-        if (0 < col) this.cells[row][col - 1].bombCount++;
-        // 下
-        if (col < this.ColCount - 1) this.cells[row][col + 1].bombCount++;
-
-        if (row < this.RowCount - 1) {
-            // 右上
-            if (0 < col) this.cells[row + 1][col - 1].bombCount++;
-            // 右
-            this.cells[row + 1][col].bombCount++;
-            // 右下
-            if (col < this.ColCount - 1) this.cells[row + 1][col + 1].bombCount++;
-        }
+    isOpenCell(row: number, col: number) {
+        return this.store.select(selector.isOpen(row, col));
     }
 
-    onAlert() {
-        alert("!");
+    isFlagCell(row: number, col: number) {
+        return this.store.select(selector.isFlag(row, col));
     }
 
-    openCell(cell: Cell) {
-        this.openZeroCell(cell.row, cell.col);
-        cell.isOpen = true;
-
-        if (cell.isBomb) {
-            this.gameOver();
-        }
+    isBombCell(row: number, col: number) {
+        return this.store.select(selector.isBomb(row, col));
+    }
+    getBombCount(row: number, col: number) {
+        return this.store.select(selector.getBombCount(row, col));
     }
 
-    flagCell(cell: Cell): boolean {
-        if (!cell.isOpen) {
-            cell.isFlag = !cell.isFlag;
-        }
+    arrayNumberLength(number: number): any[] {
+        return [...Array(number)];
+    }
+
+    openCell(row:number, col:number) {
+        return this.store.dispatch(action.open({rowIndex: row, columnIndex: col}));
+    }
+    flagCell(row:number, col:number) {
+        this.store.dispatch(action.setFlag({rowIndex: row, columnIndex: col}))
         return false;
-    }
-
-    openZeroCell(row: number, col: number) {
-        if (this.isOut(row, col)) {
-            return;
-        }
-
-        let cell = this.cells[row][col];
-        if (cell.isOpen) {
-            return;
-        }
-
-        if (cell.bombCount != 0) {
-            cell.isOpen = true;
-            return;
-        }
-
-        cell.isOpen = true;
-
-        this.openZeroCell(row, col + 1);
-        this.openZeroCell(row, col - 1);
-        this.openZeroCell(row + 1, col);
-        this.openZeroCell(row - 1, col);
-
-        this.openZeroCell(row - 1, col - 1);
-        this.openZeroCell(row - 1, col + 1);
-        this.openZeroCell(row + 1, col - 1);
-        this.openZeroCell(row + 1, col + 1);
-
-    }
-
-    public gameOver() {
-        this.isGameOver = true;
-
-        for (let r of this.cells) {
-            for (let c of r.filter(c => c.isBomb)) {
-                c.isOpen = true;
-            }
-        }
-
-    }
-
-    private isOut(row: number, col: number) : boolean {
-        return row < 0 || this.RowCount <= row
-            || col < 0 || this.ColCount <= col;
-    }
-    
+    }    
 }
